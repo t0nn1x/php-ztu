@@ -1,0 +1,165 @@
+@startuml Hotel Reservation System
+
+' Entity definitions
+entity "User" as User {
+  *id : int <<PK>>
+  --
+  *email : string <<unique>>
+  *roles : json
+  *password : string
+  *firstName : string
+  *lastName : string
+  *phoneNumber : string
+  *createdAt : datetime
+  *updatedAt : datetime
+  *isActive : boolean
+}
+
+entity "Room" as Room {
+  *id : int <<PK>>
+  --
+  *roomNumber : string <<unique>>
+  *roomTypeId : int <<FK>>
+  *floorNumber : int
+  *isAvailable : boolean
+  description : text
+  *createdAt : datetime
+  *updatedAt : datetime
+}
+
+entity "RoomType" as RoomType {
+  *id : int <<PK>>
+  --
+  *name : string
+  *capacity : int
+  *pricePerNight : decimal
+  *description : text
+  amenities : json
+  *createdAt : datetime
+  *updatedAt : datetime
+}
+
+entity "Reservation" as Reservation {
+  *id : int <<PK>>
+  --
+  *userId : int <<FK>>
+  *checkInDate : datetime
+  *checkOutDate : datetime
+  *totalPrice : decimal
+  *status : string
+  specialRequests : text
+  *createdAt : datetime
+  *updatedAt : datetime
+}
+
+entity "ReservationRoom" as ReservationRoom {
+  *id : int <<PK>>
+  --
+  *reservationId : int <<FK>>
+  *roomId : int <<FK>>
+  *pricePerNight : decimal
+  *createdAt : datetime
+  *updatedAt : datetime
+}
+
+entity "Payment" as Payment {
+  *id : int <<PK>>
+  --
+  *reservationId : int <<FK>>
+  *amount : decimal
+  *paymentMethod : string
+  *paymentStatus : string
+  transactionId : string
+  *paymentDate : datetime
+  *createdAt : datetime
+  *updatedAt : datetime
+}
+
+entity "Invoice" as Invoice {
+  *id : int <<PK>>
+  --
+  *reservationId : int <<FK>>
+  *invoiceNumber : string <<unique>>
+  *invoiceDate : datetime
+  *dueDate : datetime
+  *subtotal : decimal
+  *tax : decimal
+  *discount : decimal
+  *total : decimal
+  *status : string
+  *createdAt : datetime
+  *updatedAt : datetime
+}
+
+entity "Review" as Review {
+  *id : int <<PK>>
+  --
+  *userId : int <<FK>>
+  *reservationId : int <<FK>>
+  *rating : int
+  comment : text
+  *createdAt : datetime
+  *updatedAt : datetime
+}
+
+entity "Amenity" as Amenity {
+  *id : int <<PK>>
+  --
+  *name : string
+  description : text
+  icon : string
+  *createdAt : datetime
+  *updatedAt : datetime
+}
+
+entity "RoomAmenity" as RoomAmenity {
+  *id : int <<PK>>
+  --
+  *roomTypeId : int <<FK>>
+  *amenityId : int <<FK>>
+  *createdAt : datetime
+  *updatedAt : datetime
+}
+
+entity "Promotion" as Promotion {
+  *id : int <<PK>>
+  --
+  *name : string
+  description : text
+  *discountPercentage : decimal
+  *startDate : datetime
+  *endDate : datetime
+  *isActive : boolean
+  *createdAt : datetime
+  *updatedAt : datetime
+}
+
+entity "PromotionRoomType" as PromotionRoomType {
+  *id : int <<PK>>
+  --
+  *promotionId : int <<FK>>
+  *roomTypeId : int <<FK>>
+  *createdAt : datetime
+  *updatedAt : datetime
+}
+
+' Relationships
+User ||--o{ Reservation : makes
+User ||--o{ Review : writes
+
+RoomType ||--o{ Room : categorizes
+RoomType ||--o{ RoomAmenity : has
+RoomType ||--o{ PromotionRoomType : has
+
+Room ||--o{ ReservationRoom : "included in"
+
+Reservation ||--o{ ReservationRoom : contains
+Reservation ||--o{ Payment : has
+Reservation ||--|| Invoice : has
+Reservation ||--o{ Review : receives
+
+Amenity ||--o{ RoomAmenity : "associated with"
+
+Promotion ||--o{ PromotionRoomType : "applies to"
+
+@enduml
