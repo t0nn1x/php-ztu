@@ -14,9 +14,9 @@ class RoomAmenity
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: RoomType::class)]
+    #[ORM\ManyToOne(targetEntity: Room::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?RoomType $roomType = null;
+    private ?Room $room = null;
 
     #[ORM\ManyToOne(targetEntity: Amenity::class)]
     #[ORM\JoinColumn(nullable: false)]
@@ -33,14 +33,14 @@ class RoomAmenity
         return $this->id;
     }
 
-    public function getRoomType(): ?RoomType
+    public function getRoom(): ?Room
     {
-        return $this->roomType;
+        return $this->room;
     }
 
-    public function setRoomType(?RoomType $roomType): static
+    public function setRoom(?Room $room): static
     {
-        $this->roomType = $roomType;
+        $this->room = $room;
         return $this;
     }
 
