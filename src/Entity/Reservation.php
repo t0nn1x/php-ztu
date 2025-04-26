@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ReservationRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -38,6 +40,14 @@ class Reservation
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\OneToMany(mappedBy: 'reservation', targetEntity: ReservationRoom::class, orphanRemoval: true)]
+    private Collection $reservationRooms;
+
+    public function __construct()
+    {
+        $this->reservationRooms = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -129,6 +139,36 @@ class Reservation
     public function setUpdatedAt(\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ReservationRoom>
+     */
+    public function getReservationRooms(): Collection
+    {
+        return $this->reservationRooms;
+    }
+
+    public function addReservationRoom(ReservationRoom $reservationRoom): static
+    {
+        if (!$this->reservationRooms->contains($reservationRoom)) {
+            $this->reservationRooms->add($reservationRoom);
+            $reservationRoom->setReservation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReservationRoom(ReservationRoom $reservationRoom): static
+    {
+        if ($this->reservationRooms->removeElement($reservationRoom)) {
+            // set the owning side to null (unless already changed)
+            if ($reservationRoom->getReservation() === $this) {
+                $reservationRoom->setReservation(null);
+            }
+        }
+
         return $this;
     }
 } 
