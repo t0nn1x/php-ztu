@@ -55,7 +55,7 @@ class PaymentService extends AbstractEntityService
     {
         // Here you would integrate with your payment processor
         // For now, we'll just mark it as processed
-        $payment->setStatus('processed');
+        $payment->setPaymentStatus('processed');
         $this->save($payment);
     }
 } 
