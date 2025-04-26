@@ -7,7 +7,7 @@ use App\Security\RoleEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class UserService extends AbstractEntityService
+class UserService extends AbstractCrudService
 {
     private UserPasswordHasherInterface $passwordHasher;
 
@@ -15,7 +15,7 @@ class UserService extends AbstractEntityService
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordHasher
     ) {
-        parent::__construct($entityManager);
+        parent::__construct($entityManager, User::class);
         $this->passwordHasher = $passwordHasher;
     }
 
@@ -44,9 +44,7 @@ class UserService extends AbstractEntityService
         $user->setRoles($roles);
         $user->setIsActive(true);
 
-        $this->save($user);
-
-        return $user;
+        return $this->create($user);
     }
 
     /**
@@ -82,9 +80,7 @@ class UserService extends AbstractEntityService
             $this->passwordHasher->hashPassword($user, $newPassword)
         );
 
-        $this->save($user);
-
-        return $user;
+        return $this->update($user);
     }
 
     /**
@@ -96,9 +92,7 @@ class UserService extends AbstractEntityService
         $roles[] = $role->value;
         $user->setRoles(array_unique($roles));
 
-        $this->save($user);
-
-        return $user;
+        return $this->update($user);
     }
 
     /**
@@ -109,9 +103,7 @@ class UserService extends AbstractEntityService
         $roles = array_diff($user->getRoles(), [$role->value]);
         $user->setRoles($roles);
 
-        $this->save($user);
-
-        return $user;
+        return $this->update($user);
     }
 
     /**

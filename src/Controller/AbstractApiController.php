@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -28,6 +29,42 @@ abstract class AbstractApiController extends AbstractController
 
     abstract protected function getEntityClass(): string;
     abstract protected function getDefaultSerializationGroups(): array;
+
+    /**
+     * Find entity by ID or throw 404
+     */
+    protected function findOrFail(int $id): object
+    {
+        $entity = $this->service->find($id);
+        
+        if (!$entity) {
+            throw new NotFoundHttpException('Entity not found');
+        }
+        
+        return $entity;
+    }
+
+    /**
+     * Get JSON content from request
+     */
+    protected function getJsonContent(Request $request): array
+    {
+        $content = json_decode($request->getContent(), true);
+        
+        if (!$content) {
+            throw new \InvalidArgumentException('Invalid JSON');
+        }
+        
+        return $content;
+    }
+
+    /**
+     * Get serialization context with default groups
+     */
+    protected function getSerializationContext(): array
+    {
+        return ['groups' => $this->getDefaultSerializationGroups()];
+    }
 
     /**
      * Get collection of entities with optional filtering and pagination

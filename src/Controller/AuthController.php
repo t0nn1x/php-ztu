@@ -19,25 +19,40 @@ class AuthController extends AbstractController
         UserService $userService,
         SerializerInterface $serializer
     ): JsonResponse {
-        $data = json_decode($request->getContent(), true);
-        
-        if (!isset($data['email']) || !isset($data['password']) || !isset($data['first_name']) || !isset($data['last_name'])) {
+        try {
+            $data = json_decode($request->getContent(), true);
+            
+            if (!isset($data['email']) || !isset($data['password']) || !isset($data['first_name']) || !isset($data['last_name'])) {
+                return $this->json([
+                    'message' => 'Email, password, first_name, and last_name are required'
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            // Check if user already exists
+            if ($userService->findByEmail($data['email'])) {
+                return $this->json([
+                    'message' => 'User with this email already exists'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            $user = $userService->createUser(
+                $data['email'],
+                $data['password'],
+                $data['first_name'],
+                $data['last_name']
+            );
+
             return $this->json([
-                'message' => 'Email, password, first_name, and last_name are required'
-            ], Response::HTTP_BAD_REQUEST);
+                'message' => 'User registered successfully',
+                'user' => $serializer->serialize($user, 'json', ['groups' => ['user:read']])
+            ], Response::HTTP_CREATED);
+            
+        } catch (\Exception $e) {
+            return $this->json([
+                'message' => 'An error occurred while registering the user',
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $user = $userService->createUser(
-            $data['email'],
-            $data['password'],
-            $data['first_name'],
-            $data['last_name']
-        );
-
-        return $this->json([
-            'message' => 'User registered successfully',
-            'user' => $serializer->serialize($user, 'json', ['groups' => ['user:read']])
-        ], Response::HTTP_CREATED);
     }
 
     #[Route('/login', name: 'login', methods: ['POST'])]
