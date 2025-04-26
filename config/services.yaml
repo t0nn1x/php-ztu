@@ -20,5 +20,15 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    # Add the cron scheduler
+    App\Command\CleanupExpiredReservationsCommand:
+        tags:
+            - { name: 'console.command' }
+            - { name: 'scheduler.recurring_command', expression: '0 0 * * *' } # Run daily at midnight
+
+    # Scheduler transport factory for Symfony Scheduler Component
+    Symfony\Component\Scheduler\Messenger\SchedulerTransportFactory:
+        tags: ['messenger.transport_factory']
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
