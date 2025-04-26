@@ -20,6 +20,9 @@ class Promotion
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[ORM\Column(length: 20)]
+    private ?string $discountType = 'percentage';
+
     #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2)]
     private ?string $discountPercentage = null;
 
@@ -62,6 +65,28 @@ class Promotion
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+        return $this;
+    }
+
+    public function getDiscountType(): ?string
+    {
+        return $this->discountType;
+    }
+
+    public function setDiscountType(string $discountType): static
+    {
+        $this->discountType = $discountType;
+        return $this;
+    }
+
+    public function getDiscountValue(): float
+    {
+        return (float) $this->discountPercentage;
+    }
+
+    public function setDiscountValue(float $value): static
+    {
+        $this->discountPercentage = (string) $value;
         return $this;
     }
 
